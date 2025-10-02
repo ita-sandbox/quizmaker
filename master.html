@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=0.9">
+  <title>クイズアプリ</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .choice {
+      display: block;
+      margin: 8px 0;
+      padding: 8px;
+      width: 360px;
+      height: 50px;
+      line-height:25px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #fff;
+      box-sizing: border-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .choice:hover { background: #f0f0f0; }
+    .correct { background: #c8f7c5 !important; }
+    .wrong { background: #f7c5c5 !important; }
+    .explanation-contents {white-space: pre-line;}
+    .question-contents {white-space: pre-line;}
+    button { margin-top: 10px; padding: 8px 12px; cursor: pointer; }
+    #score { margin-top: 10px; font-weight: bold; }
+    .control-panel { margin-bottom: 40px; }
+    .random-button { width: 180px; font-size: 80%;}
+  </style>
+</head>
+<body>
+  <h1>試験対策問題集</h1>
+  <div class="control-panel">
+    <label>科目：</label>
+    <select id="subjectSelect" style="font-size: 100%;"></select>
+    &ensp;&ensp;&ensp;&ensp;
+    <label>単元：</label>
+    <select id="unitSelect" style="font-size: 100%;"></select>
+    <br>
+    <button id="subjectRandomBtn" class="random-button">科目からランダム出題</button>
+    <br>
+    <button id="unitRandomBtn" class="random-button">単元からランダム出題</button>
+    <br>
+    <button id="allRandomBtn" class="random-button">全問題からランダム出題</button>
+  </div>
+
+  <div class="control-panel">
+    <label>問題番号検索：</label>
+    <input type="number" id="searchId" min="1" max="16" style="width: 100px; height:24px;"/>
+    <button id="searchBtn" style="width: 100px;">検索</button>
+    <button id="resetBtn" style="width: 100px;">リセット</button>
+  </div>
+
+  <div id="score">正答数: 0 / 0 (0%)</div>
+  <br>
+  <h id="question" class="question-contents"></h>
+  <div id="choices"></div>
+  <p id="explanation" class="explanation-contents"></p>
+  <button id="nextBtn" style="display:none;">次の問題へ</button>
+
+<!-- ================= JSON データ ================= -->
+<script id="questions/informatics_kiso.json" type="application/json">
+{
+  "title": "情報基礎",
+  "tag": "",
+  "questions":[
+    {
+      "id": 1,
+      "tag": "Informatics",
+      "quiz": "6ビットで表される情報量は3ビットで表される情報量の何倍か？",
+      "choices": ["2倍", "3倍", "8倍", "16倍"],
+      "answer": 2,
+      "explanation": "<math><msup><mn>2</mn><mn>6</mn></msup></math>と<math><msup><mn>2</mn><mn>3</mn></msup></math>を比べることで8倍であることがわかる。"
+    },
+    {
+      "id": 2,
+      "tag": "Informatics",
+      "quiz": "10進数の19を2進数で表したものは、次のうちどれか？",
+      "choices": ["00011111", "00011001", "10101001", "00010011"],
+      "answer": 3,
+      "explanation": "地道に計算する。"
+    },
+    {
+      "id": 3,
+      "tag": "Informatics",
+      "quiz": "ASCIIコードは何ビット構成か？",
+      "choices": ["7ビット", "8ビット", "16ビット", "32ビット"],
+      "answer": 0,
+      "explanation": "アルファベット（大文字・小文字）52個と数字10個 + 記号が30程度あるので7ビットで表現する。"
+    },
+    {
+      "id": 4,
+      "tag": "Informatics",
+      "quiz": "音の符号化方式は次のうちどれか？",
+      "choices": ["BMP", "MP3", "GIF", "PNG"],
+      "answer": 1,
+      "explanation": "MP3 (MPEG-1 Audio Layer-3) は、音声データを扱うための音響圧縮方式の一つであり、その方式で保存された音声ファイルフォーマットである。BMP（ビットマップファイル）やGIF、PNGは画像ファイル符号化に使われる。"
+    },
+    {
+      "id": 5,
+      "tag": "Informatics",
+      "quiz": "左から2番目のビットを0にする方法として正しいものは、次のうちどれか？",
+      "choices": ["01000000とANDをとる", "10111111とANDをとる", "01000000とORをとる", "10111111とORをとる"],
+      "answer": 1,
+      "explanation": "各桁ごとに1とANDをとるとその桁の値を抜き出すことができる。これはサブネットマスクからネットワークアドレスを計算する際に利用される。逆に0とANDをとると必ず0になる。これらを踏まえて、「2桁目を0にする」=「2桁目を0にしてそれ以外はそのまま抜き出す」となるので、これに合致するものは2番。"
+    },
+    {
+      "id": 6,
+      "tag": "Informatics",
+      "quiz": "結果が01010101になるのは次のうちどれか？",
+      "choices": ["01011010 XOR 10100101", "11111111 XOR 10100101", "00000000 XOR 10100101", "11110000 XOR 10100101"],
+      "answer": 3,
+      "explanation": "XOR は排他的論理和。2進数の足し算を計算する際によく使う。"
+    },
+    {
+      "id": 7,
+      "tag": "Informatics",
+      "quiz": "8ビット演算でキャリーフラグがONになるのは次のうちどれか？",
+      "choices": ["01010101 + 10101010", "01010101 + 00000001", "01010101 + 10101011", "01010101 + 01010101"],
+      "answer": 2,
+      "explanation": "キャリーフラグとはCPUのフラグレジスタに用意されているビットの1つで、加算命令で最上位から繰り上がりが起きたことを示すもの。よって最後の桁でも繰り上がりが生じる組み合わせが答え。"
+    },
+    {
+      "id": 8,
+      "tag": "Informatics",
+      "quiz": "算術シフトの説明として正しいものは次のうちどれか？",
+      "choices": ["左シフトで最上位ビットは不変", "右シフトで最下位ビットは不変", "左シフトで最下位ビットは不変", "右シフトで最上位ビットは不変"],
+      "answer": 3,
+      "explanation": "最上位の桁は符号を表すので不変であり2択に絞られる。左シフトで最上位が不変だと 10000000 の左シフト(-128×2)が正しくなくなるから答えは4になる??ちなみに算術シフトは主に掛け算・割り算の際に使用する。（2をかけることはビットを左に1シフトすることと等価）。"
+    },
+    {
+      "id": 9,
+      "tag": "Informatics",
+      "quiz": "9ビットで表現できない整数は次のうちどれか？",
+      "choices": ["+255", "-255", "+256", "-256"],
+      "answer": 2,
+      "explanation": "2の補数表現では<math><mrow><mo>-</mo><msup><mn>2</mn><mrow><mi>n</mi><mo>-</mo><mn>1</mn></mrow></msup></mrow><mo>∼</mo><mrow><msup><mn>2</mn><mrow><mi>n</mi><mo>-</mo><mn>1</mn></mrow></msup><mo>-</mo><mn>1</mn></mrow></math>までを表現できる。"
+    },
+    {
+      "id": 10,
+      "tag": "Informatics",
+      "quiz": "+7の2の補数表現は次のうちどれか？",
+      "choices": ["10000111", "11111000", "11111001", "11110111"],
+      "answer": 2,
+      "explanation": "2の補数表現は絶対値の 0 と 1 を反転させてから 1 を足す。2の補数表現をすることで、減算を負の数の加算として行うことができる。"
+    },
+    {
+      "id": 11,
+      "tag": "Informatics",
+      "quiz": "10進数の0.625を2進数で表したものは次のうちどれか？",
+      "choices": ["0.11", "0.101", "0.011", "0.0101"],
+      "answer": 1,
+      "explanation": "1/2 を引いて 1/4 を引いて ... で計算できる。"
+    },
+    {
+      "id": 12,
+      "tag": "Informatics",
+      "quiz": "情報落ち誤差の説明として正しいものは次のうちどれか？",
+      "choices": ["値が大きな値と小さな値の加減算で起こる", "値がほぼ等しい数値の加減算で起こる", "演算結果の表現にビット数が不足して起こる", "演算結果の四捨五入により起こる"],
+      "answer": 0,
+      "explanation": "「情報落ち」は値が大きな値と小さな値の加減算で引き起こされる。値がほぼ等しい数値の加減算で起こるのは「桁落ち」、演算結果の表現にビット数が不足して起こるのは「オーバーフロー」やアンダーフロー、演算結果の四捨五入により起こるのは「丸め誤差」。"
+    },
+    {
+      "id": 13,
+      "tag": "Informatics",
+      "quiz": "次の誤り検出のうち最も検出精度が高いのはどれか？",
+      "choices": ["奇数パリティ", "偶数パリティ", "チェックサム", "CRC"],
+      "answer": 3,
+      "explanation": "奇数・偶数パリティは1ビットの誤り検出が可能。チェックサムはデータが通信中や保存中に破損・改ざんされていないかを確認するために、データから生成される検査用データである。CRC (Cyclic Redundancy Check, 巡回冗長検査)では、送信側は定められた生成多項式で除算した余りを検査データとして付加して送信し、受信側で同じ生成多項式を使用してデータを除算し、その余りを比較照合することによって受信データの誤り・破損を検出する。"
+    },
+    {
+      "id": 14,
+      "tag": "Informatics",
+      "quiz": "リード・ソロモン符号の特徴は次のうちどれか？",
+      "choices": ["処理速度が求められる分野で使用される", "バースト誤りに対しても誤り訂正能力を持つ", "符号の生成／複合は簡単な演算で可能", "誤り訂正のための負荷情報が最も少ない"],
+      "answer":1,
+      "explanation": "リード・ソロモン符号は1960年にアービング・ストイ・リード（英語版）とギュスタブ・ソロモン（英語版）によって開発された誤り訂正符号である。符号の生成と復号が複雑なので、処理速度が求められる分野ではあまり使用されていないが、その反面誤り訂正能力が高く、地上デジタル放送、衛星通信、ADSLやDVTR、身近なところではCDやDVDやBD、QRコードの誤り訂正に応用されている（Wikipedia）。また、バースト誤りとはデータが連続して誤りを起こすこと。"
+    },
+    {
+      "id": 15,
+      "tag": "Informatics",
+      "quiz": "ハフマン符号の特徴は次のうちどれか？",
+      "choices": ["出現確率の高い情報に短い符号を与える", "出現確率の低い情報に短い符号を与える", "出現確率に関係なく一定長の符号を与える", "出現確率には依存しない可変長の符号を与える"],
+      "answer":0,
+      "explanation": "ハフマン符号は、可逆圧縮可能な符号化方式の中で、平均符号長を最小にできることが保証されているらしい。"
+    },
+    {
+      "id": 16,
+      "tag": "Informatics",
+      "quiz": "QRコードの説明として正しいものは次のうちどれか？",
+      "choices": ["画像圧縮コードの一種", "読み取りに特殊なスキャナが必要", "誤り訂正機能がある", "国際規格ではない"],
+      "answer":2,
+      "explanation": "実は日本人が発明したもの。"
+    }
+  ]
+}
+</script>
+
+<!-- ================= JSON データ ================= -->
+<script id="questions/informatics_processor.json" type="application/json">
+{
+  "title": "プロセッサ",
+  "tag": "",
+  "questions":[
+    {
+      "id": 1,
+      "tag": "Informatics",
+      "quiz": "コンピュータの5大機能として正しい組み合わせのものは、次のうちどれか？",
+      "choices": ["入力／出力／処理／運用／保守", "入力／出力／制御／運用／保守", "入力／出力／連接／選択／反復", "入力／出力／記憶／演算／制御"],
+      "answer": 3,
+      "explanation": "基本。"
+    },
+    {
+      "id": 2,
+      "tag": "Informatics",
+      "quiz": "複雑で強力な命令を持つものは次のうちどれか？",
+      "choices": ["RISC", "CISC", "DSP", "SOC"],
+      "answer": 1,
+      "explanation": "RISC: Reduced Instruction Set Computer \n CISC: Complex Instruction Set Computer "
+    },
+    {
+      "id": 3,
+      "tag": "Informatics",
+      "quiz": "ポインタによるアドレシングは次のうちどれか？",
+      "choices": ["即値アドレシング", "直接アドレシング", "間接アドレシング", "レジスタアドレシング"],
+      "answer": 2,
+      "explanation": "即値アドレス指定方式：オペランド部に対象となるデータそのものが入っている方式。\n直接アドレス指定方式：オペランド部に実効アドレスが記載されている方式。\n間接アドレス指定方式：オペランド部に対象データの場所を示すメモリのアドレスが記載されている方式。"
+    },
+    {
+      "id": 4,
+      "tag": "Informatics",
+      "quiz": "内部割込みは次のうちどれか？",
+      "choices": ["入出力割込み", "タイマ割込み", "ウォッチドック", "TRAP"],
+      "answer": 3,
+      "explanation": "実行中のプログラム自体に起因してCPUで発生する割り込みを指す。プログラムのバグ、ゼロ除算、未定義命令、メモリアクセス違反、または保護された領域への書き込みなど、CPUが命令を実行する過程で生じる例外的な状況によって割り込みが発生します。これを「内部割り込み」「トラップ」「ソフトウェア割り込み」「例外」などと呼びます。"
+    },
+    {
+      "id": 5,
+      "tag": "Informatics",
+      "quiz": "キャッシュに関する記述で正しいものは次のうちどれか？",
+      "choices": ["キャッシュはすべてのCPUで利用可能である", "キャッシュはプログラミング手法の一種である", "キャッシュは2回目以降のアクセスで効果がある", "キャッシュは高速メモリとしてDRAMを利用する"],
+      "answer": 2,
+      "explanation": "キャッシュには主に、高速だが効果で小容量のSRAMが使われる。"
+    },
+    {
+      "id": 6,
+      "tag": "Informatics",
+      "quiz": "主にパイプラインを利用して高速化するのは次のうちどれか？",
+      "choices": ["RISC", "CISC", "DSP", "FPGA"],
+      "answer": 0,
+      "explanation": "RISC: Reduced Instruction Set Computer"
+    },
+    {
+      "id": 7,
+      "tag": "Informatics",
+      "quiz": "ハーバードアーキテクチャの説明として正しいものは次のうちどれか？",
+      "choices": ["キャッシュ方式の一種", "パイプライン方式の一種", "プログラミング方式の一種", "CPUバス構成方式の一種"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 8,
+      "tag": "Informatics",
+      "quiz": "プロセッサが複数なのは次のうちどれか？",
+      "choices": ["マルチコア", "マルチタスク", "マルチスレッド", "マルチプロセス"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 9,
+      "tag": "Informatics",
+      "quiz": "タイマ／カウンタに関連する機能ではないものは次のうちどれか？",
+      "choices": ["PWM", "DMA", "方形波出力", "インターバルタイマ"],
+      "answer": 1,
+      "explanation": "DMA: Direct Memory Access\nCPUを介さずにメモリと周辺機器間でデータを直接高速転送する仕組み。"
+    },
+    {
+      "id": 10,
+      "tag": "Informatics",
+      "quiz": "シリアル通信（バス）と関係ないものは次のうちどれか？",
+      "choices": ["PWM", "SPI", "I2C", "UART"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 11,
+      "tag": "Informatics",
+      "quiz": "CPUのI/Oポートについての説明として正しいものは次のうちどれか？",
+      "choices": ["ポートの初期状態は出力モードである", "入力プルアップ機能付きのものがある", "必ず入力と出力のどちらにも切替可能である", "出力中の値は必ず読み出すことができる"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 12,
+      "tag": "Informatics",
+      "quiz": "DMAについての説明で正しいものは次のうちどれか？",
+      "choices": ["特殊な割込みの仕組み", "プログラミングの一種", "複数のメモリにアクセスする仕組み", "CPUを介さずにメモリにアクセスする仕組み"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 13,
+      "tag": "Informatics",
+      "quiz": "次のうちパソコンの入力装置はどれか？",
+      "choices": ["プリンタ", "スピーカ", "マウス", "ハードディスク"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 14,
+      "tag": "Informatics",
+      "quiz": "次のうちパソコンの出力装置はどれか？",
+      "choices": ["プリンタ", "キーボード", "マイクロフォン", "ハードディスク"],
+      "answer":0,
+      "explanation": ""
+    },
+    {
+      "id": 15,
+      "tag": "Informatics",
+      "quiz": "次のうちパソコンの補助記憶装置はどれか？",
+      "choices": ["メモリ", "キャッシュ", "ネットワーク", "ハードディスク"],
+      "answer":3,
+      "explanation": ""
+    },
+    {
+      "id": 16,
+      "tag": "Informatics",
+      "quiz": "次のうち、パソコンの周辺機器を接続する汎用インターフェースはどれか？",
+      "choices": ["PCI", "USB", "MIDI", "GPIB"],
+      "answer":1,
+      "explanation": ""
+    }
+  ]
+}
+</script>
+
+<!-- ================= JSON データ ================= -->
+<script id="questions/information_network.json" type="application/json">
+{
+  "title": "ネットワークとマルチメディア",
+  "tag": "",
+  "questions":[
+    {
+      "id": 1,
+      "tag": "Informatics",
+      "quiz": "OSI参照モデルの下位層の説明として誤っているものは次のうちどれか？",
+      "choices": ["中継ノードを経由して通信を行う", "送られる情報の中身には関与しない", "送信元のアドレスは使用しない", "通信エラーでパケットを再送することがある"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 2,
+      "tag": "Informatics",
+      "quiz": "OSI参照モデルと装置に関する説明として正しいものは次のうちどれか？",
+      "choices": ["ゲートウェイは物理層の装置である", "ルーターはネットワーク層の装置である", "リピーターはプレゼンテーション層の装置である", "スイッチングハブはトランスポート層の装置である"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 3,
+      "tag": "Informatics",
+      "quiz": "IPパケットのヘッダに含まれないのは次のうちどれか？",
+      "choices": ["IPアドレス", "ポート番号", "ペイロード種別", "生存時間"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 4,
+      "tag": "Informatics",
+      "quiz": "TCPの説明として正しいのは次のうちどれか？",
+      "choices": ["ネットワーク層のプロトコルである", "UDPと異なり、再送制御は行われない", "伝送制御プロトコルの自作に利用できる", "フロー制御による細かい伝送制御が可能である"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 5,
+      "tag": "Informatics",
+      "quiz": "SMTPの説明として正しいのは次のうちどれか？",
+      "choices": ["ポート番号が110のプロトコル", "メールを転送するためのプロトコル", "メールボックスから受信するためのプロトコル", "ネットワークを介して会話するためのプロトコル"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 6,
+      "tag": "Informatics",
+      "quiz": "ホームページの表現に使われる言語は次のうちどれか？",
+      "choices": ["HTML", "MIME", "HTTP", "URL"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 7,
+      "tag": "Informatics",
+      "quiz": "ファイル転送の説明として正しいのは次のうちどれか？",
+      "choices": ["SMTPは代表的なファイル転送プロトコルである", "ファイルをネット上に送信することをダウンロードという", "UDP上のファイル転送プロトコルも存在する", "暗号化したファイル転送プロトコルは存在しない"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 8,
+      "tag": "Informatics",
+      "quiz": "SNMPの説明として誤っているものは次のうちどれか？",
+      "choices": ["監視サーバから機器に対する設定変更はできない", "機器をネットワーク経由で管理するためのプロトコル", "ネットワーク機器の状態管理情報をMIBという", "機器は監視サーバーからの要求に対して情報を応答する"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 9,
+      "tag": "Informatics",
+      "quiz": "音声の発生機構を利用した符号化は次のうちどれか？",
+      "choices": ["MP3", "AAC", "CELP", "ADPCM"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 10,
+      "tag": "Informatics",
+      "quiz": "人間の視覚特性のうち、JPEGで利用されていないのは次のうちどれか？",
+      "choices": ["色の変化に鈍感", "細かい変化に鈍感", "明るさの変化に敏感", "動きに対して敏感"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 11,
+      "tag": "Informatics",
+      "quiz": "MPEGに関連する説明として正しいものは次のうちどれか？",
+      "choices": ["MP3はMPEG-3のオーディオ規格である", "AACはMPEG-2のオーディオ規格である", "MPEGは可逆符号化である", "MPEGはもとはITU-Tのグループ名だった"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 12,
+      "tag": "Informatics",
+      "quiz": "LZHの説明として誤っているものは次のうちどれか？",
+      "choices": ["「LZ」は開発者の名前に由来する", "原理は辞書式圧縮法である", "Windowsでは対応していない", "圧縮ファイルの拡張子は「.lzh」である"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 13,
+      "tag": "Informatics",
+      "quiz": "公開鍵暗号の説明として誤っているものは次のうちどれか？",
+      "choices": ["電子署名では秘密鍵で暗号化し、公開鍵で複合する", "第三者機関である認証局が公開鍵証明書を発行できる", "公開鍵暗号では公開鍵で暗号化し、秘密鍵で復号する", "公開鍵暗号では公開鍵を正規の受信者のみに配布しておく"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 14,
+      "tag": "Informatics",
+      "quiz": "デジタル署名の説明として誤っているものは次のうちどれか？",
+      "choices": ["共通鍵暗号とハッシュ関数を組み合わせた認証技術である", "認証局が秘密鍵と公開鍵を生成して電子証明書を発行する", "情報の発信者が間違いなく本人かを確認する", "情報が改ざんされていないかを確認する"],
+      "answer":0,
+      "explanation": ""
+    },
+    {
+      "id": 15,
+      "tag": "Informatics",
+      "quiz": "セキュリティ対策ではないものは次のうちどれか？",
+      "choices": ["生体認証", "マルウェア", "パスワード", "ファイアウォール"],
+      "answer":1,
+      "explanation": ""
+    },
+    {
+      "id": 16,
+      "tag": "Informatics",
+      "quiz": "CPRMの説明として誤っているものは次のうちどれか？",
+      "choices": ["固有の暗号鍵で映像データが暗号化されている", "ディジタル放送に含まれるコピー制御信号のことである", "CPRM方式に対応したメディア、装置、ソフトがある", "メディアのデータ部分のみをコピーしても再生できない"],
+      "answer":1,
+      "explanation": ""
+    }
+  ]
+}
+</script>
+
+<!-- ================= JSON データ ================= -->
+<script id="questions/information_programming.json" type="application/json">
+{
+  "title": "プログラミング",
+  "tag": "",
+  "questions":[
+    {
+      "id": 1,
+      "tag": "Informatics",
+      "quiz": "配列が連結リストよりも優れている点を説明したものとして、正しいものはどれか？",
+      "choices": ["不連続なメモリ領域でも格納できる", "データの挿入や削除が容易", "他のデータを指し示す情報を持つ", "データの参照が高速"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 2,
+      "tag": "Informatics",
+      "quiz": "キューについても説明として正しいものはどれか？",
+      "choices": ["情報の一時保存に利用される", "PHSHとPOPの基本操作を持つ", "処理を待たせる目的で利用される", "情報は入れたときと逆順で出てくる"],
+      "answer": 2,
+      "explanation": "キューはenqueueとdequeue、スタックはPUSHとPOP"
+    },
+    {
+      "id": 3,
+      "tag": "Informatics",
+      "quiz": "アルゴリズムではないものはどれか？",
+      "choices": ["保守", "ソート", "探索", "再帰"],
+      "answer": 0,
+      "explanation": "〇〇アルゴリズムで違和感しかないものがあるはず"
+    },
+    {
+      "id": 4,
+      "tag": "Informatics",
+      "quiz": "フローチャートの記述で誤っているものはどれか？",
+      "choices": ["「分岐」ではなく「選択」を利用する方がよい", "データの流れを表すチャートもある", "「構造化」の考え方が重要", "できるだけ条件による分岐を使用する"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 5,
+      "tag": "Informatics",
+      "quiz": "次の文の（A）、（B）に入る語句の組み合わせとして、正しいものを選びなさい。\nモジュール設計ではモジュールの(A)を高めて、モジュール間の(B)は弱めることが重要です。",
+      "choices": ["A = 保守性、B = 移植性", "A = 独立性、B = 結合度", "A = 重要性、B = 効率", "A = 汎用性、B = 共通性"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 6,
+      "tag": "Informatics",
+      "quiz": "ソースコードの品質とは言えないものはどれか？",
+      "choices": ["独立性", "信頼性", "保守性", "移植性"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 7,
+      "tag": "Informatics",
+      "quiz": "Webプログラミングと無関係なのはどれか？",
+      "choices": ["クライアント", "ハイパーテキスト", "サーバー", "モデリング"],
+      "answer": 3,
+      "explanation": "なんのモデリングか意味不明？"
+    },
+    {
+      "id": 8,
+      "tag": "Informatics",
+      "quiz": "ソフトウェア工学で重要とされているのはどれか？",
+      "choices": ["データフロー", "手続き", "構造化", "経験"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 9,
+      "tag": "Informatics",
+      "quiz": "次のうち、低水準言語はどれか？",
+      "choices": ["COBOL", "Pascal", "アセンブリ言語", "C言語"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 10,
+      "tag": "Informatics",
+      "quiz": "アセンブリ言語の疑似命令の説明として、正しいものはどれか？",
+      "choices": ["アセンブラに対する指示", "命令を組み合わせた複合命令", "機械語を抽象化した命令", "対応する機械語が存在しない仮想命令"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 11,
+      "tag": "Informatics",
+      "quiz": "C言語の説明として誤っているものはどれか？",
+      "choices": ["構造化に対応している", "低水準言語である", "関数型言語である", "プリプロセッサが存在する"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 12,
+      "tag": "Informatics",
+      "quiz": "Javaの説明で誤っているものはどれか？",
+      "choices": ["仮想マシンで実行される", "オブジェクト指向言語である", "記述の中心はクラスである", "高速処理が可能で組み込みに適している"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 13,
+      "tag": "Informatics",
+      "quiz": "マークアップ言語と関係ないものはどれか？",
+      "choices": ["スタック", "タグ", "ハイパーリンク", "ブラウザ"],
+      "answer": 0,
+      "explanation": "ブラウザで見ることができる場合が多く、特別なタグで文字列をはさむことでその文字にハイパーリンクを埋め込むことが可能である。"
+    },
+    {
+      "id": 14,
+      "tag": "Informatics",
+      "quiz": "ハードウェア記述言語の説明で誤っているのもはどれか？",
+      "choices": ["回路図やブロック図を記述できる", "記述した論理は記述順に実行される", "シミュレーション環境で動作を確認できる", "記述した論理を物理的な回路に変換できる"],
+      "answer":1,
+      "explanation": ""
+    },
+    {
+      "id": 15,
+      "tag": "Informatics",
+      "quiz": "システム記述言語の説明で誤っているものはどれか？",
+      "choices": ["C言語やC++をベースにしている", "並列動作は記述できない", "システム仕様の検証からハードウェア記述まで表現可能", "シミュレーション環境があり検証ができる"],
+      "answer":1,
+      "explanation": ""
+    },
+    {
+      "id": 16,
+      "tag": "Informatics",
+      "quiz": "モデリング言語のメリットではないものはどれか？",
+      "choices": ["開発対象を的確に捉えられ漏れがなくなる", "視点を明確にすることで分かりやすくなる", "モデル化することで人の考えかたを理解できる", "頭の中の考えを資料として残せる"],
+      "answer":0,
+      "explanation": ""
+    }
+  ]
+}
+</script>
+
+<!-- ================= JSON データ ================= -->
+<script id="questions/information_systemconfig.json" type="application/json">
+{
+  "title": "システム構成",
+  "tag": "",
+  "questions":[
+    {
+      "id": 1,
+      "tag": "Informatics",
+      "quiz": "携帯情報端末用のOSとして開発されたものは次のうちどれか？",
+      "choices": ["Windows", "Linux", "VxWorks", "Android"],
+      "answer": 3,
+      "explanation": "VxWorksはWind River社の高信頼性OSで家電や産業機械などの組み込みシステム用のOS。"
+    },
+    {
+      "id": 2,
+      "tag": "Informatics",
+      "quiz": "OSの中心でシステムの資源を管理するのは次のうちどれか？",
+      "choices": ["カーネル", "デバイスドライバ", "ミドルウェア", "ファームウェア"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 3,
+      "tag": "Informatics",
+      "quiz": "情報の一時的な記憶に利用されるのは次のうちどれか？",
+      "choices": ["ヒープ", "スタック", "外部記憶", "static領域"],
+      "answer": 1,
+      "explanation": "static(静的)領域は最初から固定番地が割り当てられ、最後まで場所が変わらない。一方スタック(動的領域)は一時的にデータの保存に用いられ、用が済むと破壊され再利用される。"
+    },
+    {
+      "id": 4,
+      "tag": "Informatics",
+      "quiz": "マルチタスク制御に直接関係ないものは次のうちどれか？",
+      "choices": ["レディキュー", "スケジューラ", "ディスパッチャ", "デバイスドライバ"],
+      "answer": 3,
+      "explanation": "OSでは、実行可能状態のタスクは「レディキュー」と呼ばれる待ち行列で管理され、次に実行するタスクを決める方法はスケジューリングアルゴリズムと呼ばれる。代表的なスケジューリングアルゴリズムは「ラウンドロビンスケジューリング」、「優先度スケジューリング」がある。"
+    },
+    {
+      "id": 5,
+      "tag": "Informatics",
+      "quiz": "イベント駆動と直接関係ないものは次のうちどれか？",
+      "choices": ["再帰処理", "並列処理", "実時間処理", "割込み処理"],
+      "answer": 0,
+      "explanation": "並列処理を疑似的に実現するために複数のプログラムを切替える必要がある。"
+    },
+    {
+      "id": 6,
+      "tag": "Informatics",
+      "quiz": "システムコールではないものは次のうちどれか？",
+      "choices": ["SC", "SWI", "NMI", "TRAP"],
+      "answer": 2,
+      "explanation": "CPUで「ソフトウェア割込み」が定義されている場合、命令としては INT(Interrupt), SWI(SoftWare Interrupt), SC(System Call), TRAP などの名前がある。NMI(Non-Maskable Interrupt)はマスク（無効化）できない割り込み信号であり、ハードウェアのエラーや予期せぬ事象、例えばCPUのオーバーヒートなどの緊急事態が発生した際にOSに通知するために使用される。したがって通常の割り込みと異なり、OSがこの割り込みを無視することができない。"
+    },
+    {
+      "id": 7,
+      "tag": "Informatics",
+      "quiz": "リアルタイム処理と直接関係ないものは次のうちどれか？",
+      "choices": ["優先度", "プリエンプション", "リエントラント", "イベントドリブン"],
+      "answer": 2,
+      "explanation": "リエントラント（再入可能）とは、プログラムが実行中に同時に複数の場所から呼び出されても、互いに干渉することなく正常に処理を完了できる性質のこと。"
+    },
+    {
+      "id": 8,
+      "tag": "Informatics",
+      "quiz": "OSによりタスクを切替えることを何というか？",
+      "choices": ["ブレーク", "ページング", "システムコール", "コンテキストスイッチ"],
+      "answer": 3,
+      "explanation": "特定のアドレスで実行を一時停止するためのポイントをブレークポイントという。プリエンプション（Preemption）とは、マルチタスクシステムにおいて、実行中のタスク（プログラム）を強制的に一時中断し、より優先度の高い他のタスクの実行に切り替える動作のこと。ページングはコンピュータがメモリを「ページ」という一定サイズのブロックに分割し、仮想メモリを管理する技術のこと。"
+    },
+    {
+      "id": 9,
+      "tag": "Informatics",
+      "quiz": "関数ライブラリでメモリ節約になるのは次のうちどれか？",
+      "choices": ["DLL", "ヘッダファイル", "コンポーネント", "標準関数"],
+      "answer": 0,
+      "explanation": "DLL(Dynamic Link Library)はプログラムの動作時に動的に利用するのでメモリの節約になる。"
+    },
+    {
+      "id": 10,
+      "tag": "Informatics",
+      "quiz": "ミドルウェアの位置づけは次のうちどれか？",
+      "choices": ["OSの中", "デバイスドライバとOSの間", "アプリケーションとOSの間", "アプリケーションの中"],
+      "answer": 2,
+      "explanation": "解答のとおり。"
+    },
+    {
+      "id": 11,
+      "tag": "Informatics",
+      "quiz": "カーネルの役割ではないものは次のうちどれか？",
+      "choices": ["システムの安定性", "プログラムのデバッグ", "CPUの資源管理", "アプリケーションへの各種機能提供"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 12,
+      "tag": "Informatics",
+      "quiz": "デバイスドライバの機能として正しいのは次のうちどれか？",
+      "choices": ["割込みを使用しないで装置を制御", "装置のハードウェアを公開", "装置の抽象化インターフェースを提供", "装置制御プログラム開発を支援"],
+      "answer": 2,
+      "explanation": "解答のとおり。"
+    },
+    {
+      "id": 13,
+      "tag": "Informatics",
+      "quiz": "相対パスの起点は次のうちどれか？",
+      "choices": ["サブディレクトリ", "カレントディレクトリ", "ホームディレクトリ", "ルートディレクトリ"],
+      "answer": 1,
+      "explanation": "ユーザー作業の起点となるディレクトリを「ホームディレクトリ」という。"
+    },
+    {
+      "id": 14,
+      "tag": "Informatics",
+      "quiz": "ハードディスク内のファイルデータ管理単位は次のうちどれか？",
+      "choices": ["クラスタ", "セクタ", "トラック", "ドライブ"],
+      "answer":0,
+      "explanation": "ハードディスクにデータを記録する場合、物理的にはセクタという単位で記録されるが、管理が煩雑になるため実際には連続したセクタをいくつかまとめたクラスタという単位でデータを管理する。トラックは円盤状の記憶装置の記録単位で、記憶装置を同心円状に区切った際の一つ一つの輪っかの部分をいう。"
+    },
+    {
+      "id": 15,
+      "tag": "Informatics",
+      "quiz": "FATに関する記述で正しいのは次のうちどれか？",
+      "choices": ["FAT12ではファイル名は最大12文字", "FAT16の16はセクタ番号を表すビット数", "FAT32にはファイル圧縮機能がある", "FATは重要なので2重化されている"],
+      "answer":3,
+      "explanation": ""
+    },
+    {
+      "id": 16,
+      "tag": "Informatics",
+      "quiz": "レコード中のキーから格納アドレスを算出する編成法は次のうちどれか？",
+      "choices": ["順編成", "直接編成", "索引編成", "区分編成"],
+      "answer":1,
+      "explanation": "順編成：\nレコードを先頭から順に配置する単純な編成法。\n直接編成：\nキーを指定して特定のレコードのみアクセス可能な編成法。キーの値をレコードのアドレスに変換する方式により、直接アドレス方式と間接アドレス方式がある。\n索引編成：\n順編成に索引を加え直接アクセスも可能にした編成法。ISAM(Indexed Sequential Access Method)と呼ばれ、多くのデータベースで利用されている。\n区分編成：\nファイルに複数のメンバを管理するディレクトリを設け、メンバ領域を区分して、順編成ファイルを配置。単純な順編成より、効率が良い。"
+    }
+  ]
+}
+</script>
+
+<!-- ================= JSON データ ================= -->
+<script id="questions/information_systemdevelop.json" type="application/json">
+{
+  "title": "システム開発",
+  "tag": "",
+  "questions":[
+    {
+      "id": 1,
+      "tag": "Informatics",
+      "quiz": "PERTでクリティカルパスが重要な理由は次のうちどれか？",
+      "choices": ["最も日程にの余裕のない経路だから", "最も工数がかかる経路だから", "最後に仕上げるべき作業だから", "最初に取り掛かるべき作業だから"],
+      "answer": 0,
+      "explanation": "PERT(Program Evaluation and Review Technique)は様々な工程管理で利用される手法で、作業工程をアローダイアグラムで表現し、時間に余裕のない経路を明確にして重点的に管理する。PERT図で最も余裕のない経路をクリティカルパスという。"
+    },
+    {
+      "id": 2,
+      "tag": "Informatics",
+      "quiz": "ウォーターフォール型開発の特徴は次のうちどれか？",
+      "choices": ["水の流れのように、柔軟に開発を進める", "滝のように、逆戻りしない", "滝のように、一気に開発を進める", "川の流れのように、下流程ゆっくり開発を進める"],
+      "answer": 1,
+      "explanation": "ウォーターフォール型の開発とは、水が滝を流れ落ちるように、上流から下流に向かって1つずつ順に作業を進めていくやり方。"
+    },
+    {
+      "id": 3,
+      "tag": "Informatics",
+      "quiz": "アジャイルの意味は次のうちどれか？",
+      "choices": ["重厚な", "堅実な", "大規模な", "素早い"],
+      "answer": 3,
+      "explanation": "ソフトウェア開発において、様々な変更に柔軟にかつ迅速にい対応できる現実的な開発手法を総称してアジャイル開発という。代表的な手法にXP(eXtreme Programming)がある。ちなみにバスケットボールでは、アジリティがある選手は素早い動きをする選手のことを指す。ちょうど河村勇輝のような選手。"
+    },
+    {
+      "id": 4,
+      "tag": "Informatics",
+      "quiz": "デザインレビューとはどのようなものか？",
+      "choices": ["設計内容を確認する公式のレビュー", "非公式に自由に行う自主的なレビュー", "システム完成後に行うユーザーによるレビュー", "プログラムの詳細な流れを説明するレビュー"],
+      "answer": 0,
+      "explanation": "非公式に自由に行うレビューはウォークスルー。"
+    },
+    {
+      "id": 5,
+      "tag": "Informatics",
+      "quiz": "コンパイラとアセンブラに関する説明として正しいものは、次のうちどれか？",
+      "choices": ["コンパイラの出力をアセンブラが結合する", "アセンブラの出力をコンパイラが結合する", "コンパイラとアセンブラはともに機械語を出力する", "アセンブラが処理した内容をコンパイラが処理する"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 6,
+      "tag": "Informatics",
+      "quiz": "ソフトウェアの統合開発環境(IDE)に含まれないものは次のうちどれか？",
+      "choices": ["デバッガ", "エディタ", "コンパイラ", "ロジックアナライザ"],
+      "answer": 3,
+      "explanation": "ロジックアナライザとは、デジタル回路上の信号を表示し、デジタル回路上の動作を表示・解析を行うツールのこと。"
+    },
+    {
+      "id": 7,
+      "tag": "Informatics",
+      "quiz": "JTAGに関する記述で誤っているものは、次のうちどれか？",
+      "choices": ["本来はLSI内部テストを行うための規格", "汎用パラレルインターフェースとしても利用される", "標準化にあたる団体名の名称が企画名として定着", "ICEや内臓ROMの書き込みにも利用される"],
+      "answer": 1,
+      "explanation": "JTAG(Joint Test Action Group) は集積回路(LSI: Large Scale Integration)のすべての入出力ピンを順次走査し、テストデータを送り受けしてデバイスのテストを行う規格のこと。"
+    },
+    {
+      "id": 8,
+      "tag": "Informatics",
+      "quiz": "デバッガの役割ではないものは次のうちどれか？",
+      "choices": ["プログラムを修正して開発する", "プログラムを少しずつ動作させる", "変数やレジスタの内容を表示する", "機械語を逆アセンブルして表示する"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 9,
+      "tag": "Informatics",
+      "quiz": "要件定義工程の説明として、誤っているものは次のうちどれか？",
+      "choices": ["問題点は何か、何をすべきかを明確にする工程である", "モジュールの「強度」と「結合度」に注目する", "最初の工程で、後の開発工程全体に影響する", "ユーザーからの聞き取りや実態の調査・分析も重要である"],
+      "answer": 1,
+      "explanation": "モジュールの「強度」と「結合度」に注目するのはソフトウェア設計の時。"
+    },
+    {
+      "id": 10,
+      "tag": "Informatics",
+      "quiz": "ソフトウェア設計工程の説明として正しいものは次のうちどれか？",
+      "choices": ["ユーザーの要求を把握して整理", "プログラミング言語は使わない", "開発者同士でコードレビューを行う", "できるだけ多くの欠陥を発見する"],
+      "answer": 1,
+      "explanation": "「設計」は抽象的な作業であるため、まだこの段階ではプログラミング言語は使用しない。"
+    },
+    {
+      "id": 11,
+      "tag": "Informatics",
+      "quiz": "ソフトウェア製造工程の別名ではないものは次のうちどれか？",
+      "choices": ["実装", "コーディング", "プログラミング", "シミュレーション"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 12,
+      "tag": "Informatics",
+      "quiz": "V字モデルにおいて、V字関係になるものの組み合わせとして正しいのは次のうちどれか？",
+      "choices": ["製造工程とテスト工程", "要件定義工程と設計工程", "開発工程とテスト工程", "単体テストと結合テスト"],
+      "answer": 3,
+      "explanation": "製造を底にして、詳細設計⇔単体テスト、方針設計⇔結合テスト、要件定義⇔結合テスト が対応する。"
+    },
+    {
+      "id": 13,
+      "tag": "Informatics",
+      "quiz": "ゲームと表計算が、「開く」操作で違う動作をするのは次のうちどれか",
+      "choices": ["継承", "モデリング", "カプセル化", "ポリモーフィズム"],
+      "answer": 3,
+      "explanation": "ポリモーフィズム（多態性・多相性）とは、オブジェクト指向プログラミングにおいて、同じインターフェースやメソッドを使いながら、異なるオブジェクトがそれぞれの方法で振る舞うこと。"
+    },
+    {
+      "id": 14,
+      "tag": "Informatics",
+      "quiz": "モデリングで重要なのは次のうちどれか？",
+      "choices": ["視点を限定して単純化すること", "さまざまな角度から問題を表現すること", "機密保持のため外部の人間に解読されないこと", "細かい点を残さずにモデル化すること"],
+      "answer":0,
+      "explanation": ""
+    },
+    {
+      "id": 15,
+      "tag": "Informatics",
+      "quiz": "UMLに関する記述で誤っているものは次のうちどれか？",
+      "choices": ["書く最適に標準化されている", "コミュニケーションに必要なツールである", "表記法と方法論を一体化して規定している", "オブジェクト指向開発に有効である"],
+      "answer":2,
+      "explanation": "UML(Unified Modeling Language)はOMG(Object Management Group)が認定した標準表記法。UMLはシステム開発の方法論とは分離されており、各種の図（ダイアグラム）の使い方は決められていないので、プロジェクトに合わせて自由に選択できる。"
+    },
+    {
+      "id": 16,
+      "tag": "Informatics",
+      "quiz": "リファクタリングに関する記述で正しいのは次のうちどれか？",
+      "choices": ["機能追加などの作業に合わせて実施する方がよい", "変更は少しずつ、絶えずテストにより確認する", "システム全体のロジックを徹底的に再検討する", "オブジェクトの役割分担の見直しは行わない"],
+      "answer":1,
+      "explanation": "＜リファクタリング＞のルール\n・機能追加など、ほかの作業と一緒に行わない。\n・対象範囲についてのテストを用意して、変更ごとに前後で検証する。\n・一回の変更作業をできるだけ小さくして、変更と検証を繰り返す。\n・大幅なロジック変更は避ける。\n・必ず、バックアップを取りながら改造を進める。"
+    }
+  ]
+}
+</script>
+
+<!-- ================= JSON データ ================= -->
+<script id="questions/mechanics_kiso.json" type="application/json">
+{
+  "title": "機械工学基礎（4力）",
+  "tag": "",
+  "questions":[
+    {
+      "id": 1,
+      "tag": "mechanics",
+      "quiz": "材料に加わる応力をσ、ひずみをε、材料の縦弾性係数をEとすると、それらの関係を示す式はどれか？",
+      "choices": ["σ = Eε", "E = σε", "ε = σE", "ε = σE²"],
+      "answer": 0,
+      "explanation": "基本の式。覚えろ"
+    },
+    {
+      "id": 2,
+      "tag": "mechanics",
+      "quiz": "せん断応力の単位として正しいのはどれか？",
+      "choices": ["単位長さ当たりに加わる力", "単位面積当たりに加わる力", "単位体積当たりに加わる力", "単位重量当たりに加わる力"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 3,
+      "tag": "mechanics",
+      "quiz": "はりに作用する力がつり合うための条件として、加わる力と反力の総和が0のほかに、必要なことはどれか？",
+      "choices": ["支持点の回りの力モーメントが一定", "支持点の回りの力のモーメントが0", "支持点もそれ以外の点でも、力のモーメントが0", "力のモーメントは関係しない"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 4,
+      "tag": "mechanics",
+      "quiz": "はりの内側が圧縮で外側が引っ張りの場合、中央部にある伸び縮みのない面を何というか？",
+      "choices": ["中心面", "界面", "基準面", "中立面"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 5,
+      "tag": "mechanics",
+      "quiz": "空気、水、グリセリンを何流体というか？",
+      "choices": ["ニュートン流体", "非ニュートン流体", "非粘性流体", "理想流体"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 6,
+      "tag": "mechanics",
+      "quiz": "理想流体は、流管中でどのような関係式が成り立つか？",
+      "choices": ["流速と断面積が比例する", "流速の二乗と断面積が比例する", "流速と断面積が反比例する", "流速の二乗と断面積が反比例する"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 7,
+      "tag": "mechanics",
+      "quiz": "オリフィスとは何か？",
+      "choices": ["円盤の中央に円形の孔をあけたもの", "円環の途中に横孔をあけたもの", "断面が四角形状の管", "円管が途中で太くなったもの"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 8,
+      "tag": "mechanics",
+      "quiz": "水流の流速がある値を超えると、どのような現象が起きることがあるか",
+      "choices": ["層流が乱流になる", "乱流が脈流になる", "脈流が乱流になる", "乱流が層流になる"],
+      "answer": 0,
+      "explanation": "脈流とは、電流や流体の方向は一定であるものの、その大きさや量が周期的に変化する流れのこと。"
+    },
+    {
+      "id": 9,
+      "tag": "mechanics",
+      "quiz": "ゲージ圧力はどのようにあらわされるか？",
+      "choices": ["絶対圧力+大気圧", "絶対圧力-大気圧", "大気圧-絶対圧力", "絶対圧力÷大気圧"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 10,
+      "tag": "mechanics",
+      "quiz": "可逆カルノーサイクルでは、熱効率はどのようになるか？",
+      "choices": ["高温源側の温度だけで決まる", "低温源側の温度だけで決まる", "高温源と低温源の温度だけで決まる", "音源の温度だけでは決まらない"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 11,
+      "tag": "mechanics",
+      "quiz": "一般に気体の熱伝導率は圧力によってどのようになるか？",
+      "choices": ["圧力上昇によって熱伝導率は下がる", "圧力上昇によって熱伝導率は上がる", "圧力上昇によって熱伝導率は急上昇する", "圧力上昇によって熱伝導率はほとんど変化しない"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 12,
+      "tag": "mechanics",
+      "quiz": "エントロピとは何か？",
+      "choices": ["熱量／絶対温度", "圧力／絶対温度", "モル数／絶対温度", "体積／絶対温度"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 13,
+      "tag": "mechanics",
+      "quiz": "物体運動の加速度が x=-ω^2 A cosωtのとき、変位はどのようになるか？",
+      "choices": ["ωAsinωt", "ωAcosωt", "Asinωt", "Acosωt"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 14,
+      "tag": "mechanics",
+      "quiz": "ダンパは力学モデルの何に相当するか？",
+      "choices": ["質量", "ばね", "粘性抵抗", "非線形要素"],
+      "answer":2,
+      "explanation": ""
+    },
+    {
+      "id": 15,
+      "tag": "mechanics",
+      "quiz": "回転体の遠心力は回転速度によってどのようになるか？",
+      "choices": ["回転速度に比例する", "回転速度の二乗に比例する", "回転速度の三乗に比例する", "回転速度に反比例する"],
+      "answer":1,
+      "explanation": ""
+    },
+    {
+      "id": 16,
+      "tag": "mechanics",
+      "quiz": "ピストン・クランクは周期的振動を引き起こすので、何をつりあわせてそれを防いでいるか？",
+      "choices": ["慣性力", "重さ", "ばね定数", "固有振動数"],
+      "answer":0,
+      "explanation": ""
+    }
+  ]
+}
+</script>
+
+<!-- ================= JavaScript ================= -->
+<script>
+// ------------------ データ管理 ------------------
+const quizDataFiles = {
+  "情報": ["questions/informatics_kiso.json", "questions/informatics_processor.json", "questions/information_programming.json", "questions/information_systemconfig.json", "questions/information_systemdevelop.json", "questions/information_network.json"],
+  "機械": ["questions/mechanics_kiso.json"]
+};
+
+let questions= [];
+let currentIndex = 0;
+let correctCount = 0;
+let totalCount = 0;
+
+// ------------------ UI要素 ------------------
+const subjectSelect = document.getElementById("subjectSelect");
+const unitSelect = document.getElementById("unitSelect");
+const subjectRandomBtn = document.getElementById("subjectRandomBtn");
+const unitRandomBtn = document.getElementById("unitRandomBtn");
+const allRandomBtn = document.getElementById("allRandomBtn");
+const searchBtn = document.getElementById("searchBtn");
+const resetBtn = document.getElementById("resetBtn");
+const scoreDisplay = document.getElementById("score");
+
+// ------------------ 初期化 ------------------
+// 科目セレクト作成
+for (const subject in quizDataFiles) {
+  const option = document.createElement("option");
+  option.value = subject;
+  option.textContent = subject;
+  subjectSelect.appendChild(option);
+}
+
+// 単元更新
+async function updateUnitOptions() {
+  const subject = subjectSelect.value;
+  unitSelect.innerHTML = "";
+  var data
+  for (const file of quizDataFiles[subject]){
+    const scriptTag = document.getElementById(file);
+    if (scriptTag){
+      data = JSON.parse(scriptTag.textContent);
+    }else{
+      const res = await fetch(file);
+      data = await res.json();
+    } 
+    const option = document.createElement("option");
+    option.value = file;
+    // option.textContent = `${data.title} (${data.tag})`;
+    option.textContent = `${data.title}`;
+    unitSelect.appendChild(option);
+  }
+}
+
+updateUnitOptions();
+subjectSelect.onchange = updateUnitOptions;
+
+// ------------------ スコア更新 ------------------
+function updateScore() {
+  const percent = totalCount ? Math.round(correctCount / totalCount * 100) : 0;
+  scoreDisplay.textContent = `正答数: ${correctCount} / ${totalCount} (${percent}%)`;
+}
+
+// ------------------ 問題表示 ------------------
+function showQuestion() {
+  if (!questions.length) return;
+  const q = questions[currentIndex];
+  document.getElementById("question").textContent = q.quiz;
+  const choicesDiv = document.getElementById("choices");
+  choicesDiv.innerHTML = "";
+
+  q.choices.forEach((choice, idx) => {
+    const btn = document.createElement("button");
+    btn.textContent = choice;
+    btn.className = "choice";
+    btn.onclick = () => checkAnswer(idx);
+    choicesDiv.appendChild(btn);
+
+    // フォント調整
+    adjustChoiceFontSize(btn);
+  });
+
+  document.getElementById("explanation").textContent = "";
+  document.getElementById("nextBtn").style.display = "none";
+}
+
+// ------------------ 回答チェック ------------------
+function checkAnswer(selected) {
+  const q = questions[currentIndex];
+  const choices = document.querySelectorAll("#choices button");
+  choices.forEach((btn, idx) => {
+    if (idx === q.answer) btn.classList.add("correct");
+    else if (idx === selected) btn.classList.add("wrong");
+    btn.disabled = true;
+  });
+
+  // document.getElementById("explanation").textContent = "解説：\n" + q.explanation + "\n\n 問題番号 " + q.id;
+  document.getElementById("explanation").innerHTML = "解説：\n" + q.explanation + "\n\n 問題番号 " + q.id;
+
+  totalCount++;
+  if (selected === q.answer) correctCount++;
+  updateScore();
+
+  document.getElementById("nextBtn").style.display = "block";
+}
+
+document.getElementById("nextBtn").onclick = () => {
+  currentIndex++;
+  if (currentIndex < questions.length) showQuestion();
+  else alert("終了！全問題解答済みです 🎉");
+};
+
+// ------------------ JSON読み込み ------------------
+async function loadJSON(file) {
+  const scriptTag = document.getElementById(file);
+  if (scriptTag){
+    return JSON.parse(scriptTag.textContent)
+  }else{
+    const res = await fetch(file);
+    return await res.json();
+  }
+}
+
+// ------------------ 配列シャッフル ------------------
+function shuffleArray(array) {
+  for (let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+}
+
+// ------------------ 単元選択出題 ------------------
+unitSelect.onchange = async () => {
+  const file = unitSelect.value;
+  const data = await loadJSON(file);
+  questions = data.questions;
+  shuffleArray(questions);
+  currentIndex = 0;
+  showQuestion();
+};
+
+// ------------------ 単元ランダム出題 ------------------
+unitRandomBtn.onclick = async () => {
+  const file = unitSelect.value;
+  const data = await loadJSON(file);
+  questions = data.questions;
+  shuffleArray(questions);
+  currentIndex = 0;
+  showQuestion();
+};
+
+// ------------------ 科目ランダム出題 ------------------
+subjectRandomBtn.onclick = async () => {
+  const subject = subjectSelect.value;
+  const files = quizDataFiles[subject];
+  const allquestions = [];
+  for (const f of files){
+    const data = await loadJSON(f)
+    allquestions.push(...data.questions)
+  }
+  questions= allquestions;
+  shuffleArray(questions);
+  currentIndex = 0;
+  showQuestion();
+};
+
+// ------------------ 全問題ランダム出題 ------------------
+allRandomBtn.onclick = async () => {
+  const allFiles = Object.values(quizDataFiles).flat();
+  const allquestions= [];
+  const results = await Promise.all(allFiles.map(f => loadJSON(f)));
+  results.forEach(arr => allquestions.push(...arr.questions));
+  questions= allquestions;
+  shuffleArray(questions);
+  currentIndex = 0;
+  showQuestion();
+};
+
+// ------------------ 問題番号検索 ------------------
+searchBtn.onclick = () => {
+  const id = parseInt(document.getElementById("searchId").value);
+  const index = questions.findIndex(q => q.id === id);
+  if (index >= 0) {
+    currentIndex = index;
+    showQuestion();
+  } else {
+    alert("該当する問題がありません");
+  }
+};
+
+// ------------------ リセット ------------------
+resetBtn.onclick = () => {
+  currentIndex = 0;
+  correctCount = 0;
+  totalCount = 0;
+  updateScore();
+  shuffleArray(questions);
+  showQuestion();
+};
+
+// ------------------ 問題文の文字サイズの調整 ------------------
+function adjustChoiceFontSize(button, maxFontSize = 14, minFontSize = 8) {
+  let fontSize = maxFontSize;
+  button.style.fontSize = fontSize + "px";
+
+  while (button.scrollWidth > button.clientWidth && fontSize > minFontSize) {
+    fontSize--;
+    button.style.fontSize = fontSize + "px";
+  }
+}
+</script>
+
+</body>
+</html>

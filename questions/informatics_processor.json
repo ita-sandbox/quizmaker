@@ -1,0 +1,134 @@
+{
+  "title": "プロセッサ",
+  "tag": "",
+  "questions":[
+    {
+      "id": 1,
+      "tag": "Informatics",
+      "quiz": "コンピュータの5大機能として正しい組み合わせのものは、次のうちどれか？",
+      "choices": ["入力／出力／処理／運用／保守", "入力／出力／制御／運用／保守", "入力／出力／連接／選択／反復", "入力／出力／記憶／演算／制御"],
+      "answer": 3,
+      "explanation": "基本。"
+    },
+    {
+      "id": 2,
+      "tag": "Informatics",
+      "quiz": "複雑で強力な命令を持つものは次のうちどれか？",
+      "choices": ["RISC", "CISC", "DSP", "SOC"],
+      "answer": 1,
+      "explanation": "RISC: Reduced Instruction Set Computer \n CISC: Complex Instruction Set Computer "
+    },
+    {
+      "id": 3,
+      "tag": "Informatics",
+      "quiz": "ポインタによるアドレシングは次のうちどれか？",
+      "choices": ["即値アドレシング", "直接アドレシング", "間接アドレシング", "レジスタアドレシング"],
+      "answer": 2,
+      "explanation": "即値アドレス指定方式：オペランド部に対象となるデータそのものが入っている方式。\n直接アドレス指定方式：オペランド部に実効アドレスが記載されている方式。\n間接アドレス指定方式：オペランド部に対象データの場所を示すメモリのアドレスが記載されている方式。"
+    },
+    {
+      "id": 4,
+      "tag": "Informatics",
+      "quiz": "内部割込みは次のうちどれか？",
+      "choices": ["入出力割込み", "タイマ割込み", "ウォッチドック", "TRAP"],
+      "answer": 3,
+      "explanation": "実行中のプログラム自体に起因してCPUで発生する割り込みを指す。プログラムのバグ、ゼロ除算、未定義命令、メモリアクセス違反、または保護された領域への書き込みなど、CPUが命令を実行する過程で生じる例外的な状況によって割り込みが発生します。これを「内部割り込み」「トラップ」「ソフトウェア割り込み」「例外」などと呼びます。"
+    },
+    {
+      "id": 5,
+      "tag": "Informatics",
+      "quiz": "キャッシュに関する記述で正しいものは次のうちどれか？",
+      "choices": ["キャッシュはすべてのCPUで利用可能である", "キャッシュはプログラミング手法の一種である", "キャッシュは2回目以降のアクセスで効果がある", "キャッシュは高速メモリとしてDRAMを利用する"],
+      "answer": 2,
+      "explanation": "キャッシュには主に、高速だが効果で小容量のSRAMが使われる。"
+    },
+    {
+      "id": 6,
+      "tag": "Informatics",
+      "quiz": "主にパイプラインを利用して高速化するのは次のうちどれか？",
+      "choices": ["RISC", "CISC", "DSP", "FPGA"],
+      "answer": 0,
+      "explanation": "RISC: Reduced Instruction Set Computer"
+    },
+    {
+      "id": 7,
+      "tag": "Informatics",
+      "quiz": "ハーバードアーキテクチャの説明として正しいものは次のうちどれか？",
+      "choices": ["キャッシュ方式の一種", "パイプライン方式の一種", "プログラミング方式の一種", "CPUバス構成方式の一種"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 8,
+      "tag": "Informatics",
+      "quiz": "プロセッサが複数なのは次のうちどれか？",
+      "choices": ["マルチコア", "マルチタスク", "マルチスレッド", "マルチプロセス"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 9,
+      "tag": "Informatics",
+      "quiz": "タイマ／カウンタに関連する機能ではないものは次のうちどれか？",
+      "choices": ["PWM", "DMA", "方形波出力", "インターバルタイマ"],
+      "answer": 1,
+      "explanation": "DMA: Direct Memory Access\nCPUを介さずにメモリと周辺機器間でデータを直接高速転送する仕組み。"
+    },
+    {
+      "id": 10,
+      "tag": "Informatics",
+      "quiz": "シリアル通信（バス）と関係ないものは次のうちどれか？",
+      "choices": ["PWM", "SPI", "I2C", "UART"],
+      "answer": 0,
+      "explanation": ""
+    },
+    {
+      "id": 11,
+      "tag": "Informatics",
+      "quiz": "CPUのI/Oポートについての説明として正しいものは次のうちどれか？",
+      "choices": ["ポートの初期状態は出力モードである", "入力プルアップ機能付きのものがある", "必ず入力と出力のどちらにも切替可能である", "出力中の値は必ず読み出すことができる"],
+      "answer": 1,
+      "explanation": ""
+    },
+    {
+      "id": 12,
+      "tag": "Informatics",
+      "quiz": "DMAについての説明で正しいものは次のうちどれか？",
+      "choices": ["特殊な割込みの仕組み", "プログラミングの一種", "複数のメモリにアクセスする仕組み", "CPUを介さずにメモリにアクセスする仕組み"],
+      "answer": 3,
+      "explanation": ""
+    },
+    {
+      "id": 13,
+      "tag": "Informatics",
+      "quiz": "次のうちパソコンの入力装置はどれか？",
+      "choices": ["プリンタ", "スピーカ", "マウス", "ハードディスク"],
+      "answer": 2,
+      "explanation": ""
+    },
+    {
+      "id": 14,
+      "tag": "Informatics",
+      "quiz": "次のうちパソコンの出力装置はどれか？",
+      "choices": ["プリンタ", "キーボード", "マイクロフォン", "ハードディスク"],
+      "answer":0,
+      "explanation": ""
+    },
+    {
+      "id": 15,
+      "tag": "Informatics",
+      "quiz": "次のうちパソコンの補助記憶装置はどれか？",
+      "choices": ["メモリ", "キャッシュ", "ネットワーク", "ハードディスク"],
+      "answer":3,
+      "explanation": ""
+    },
+    {
+      "id": 16,
+      "tag": "Informatics",
+      "quiz": "次のうち、パソコンの周辺機器を接続する汎用インターフェースはどれか？",
+      "choices": ["PCI", "USB", "MIDI", "GPIB"],
+      "answer":1,
+      "explanation": ""
+    }
+  ]
+}
