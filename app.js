@@ -1,6 +1,7 @@
 // ------------------ データ管理 ------------------
 const quizDataFiles = {
-  "情報": ["questions/informatics_kiso.json", "questions/informatics_processor.json", "questions/information_programming.json", "questions/information_systemconfig.json", "questions/information_systemdevelop.json", "questions/information_network.json"],
+  "情報": ["questions/informatics_kiso.json", "questions/informatics_processor.json", "questions/informatics_programming.json", "questions/informatics_systemconfig.json", "questions/informatics_systemdevelop.json", "questions/informatics_network.json"],
+  "電気": ["questions/electric_electricalcircuit.json", "questions/electric_electroniccircuit.json", "questions/electric_semiconductor.json", "questions/electric_interface.json", "questions/electric_motor.json"],
   "機械": ["questions/mechanics_kiso.json"]
 };
 
